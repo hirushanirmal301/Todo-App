@@ -307,7 +307,7 @@ This project is open-sourced software licensed under the [MIT license](LICENSE).
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@hirushanirmal301](https://github.com/yourusername)
+- GitHub: [@hirushanirmal301]([https://github.com/yourusername](https://github.com/hirushanirmal301))
 - LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
 - Email: hirushanirmal737@gmail.com
 
