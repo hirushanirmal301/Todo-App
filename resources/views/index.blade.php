@@ -104,16 +104,17 @@
                 </div>
                 <div class="grid grid-cols-3 gap-4 text-center">
                     <div>
-                        <div id="total-tasks" class="text-2xl font-bold text-purple-400">10</div>
+                        <div id="total-tasks" class="text-2xl font-bold text-purple-400">{{$total}}</div>
                         <div class="text-xs text-gray-400">Total</div>
                     </div>
                     <div>
-                        <div id="completed-tasks" class="text-2xl font-bold text-green-400">0</div>
+                        <div id="completed-tasks" class="text-2xl font-bold text-green-400">{{$completed}}</div>
                         <div class="text-xs text-gray-400">Done</div>
                     </div>
                     <div>
-                        <div id="pending-tasks" class="text-2xl font-bold text-orange-400">0</div>
+                        <div id="pending-tasks" class="text-2xl font-bold text-orange-400">{{$pending}}</div>
                         <div class="text-xs text-gray-400">Pending</div>
+
                     </div>
                 </div>
             </div>
@@ -168,218 +169,166 @@
             </div>
 
             <!-- task card -->
-             @foreach($tasks as $task)
-            <div class="task-item glass-effect rounded-xl p-4 priority-low fade-in m-3">
-                <div class="flex items-center justify-between">
-                    <div class="flex items-center space-x-3 flex-1">
-                        <!-- Checkbox -->
-                        <input 
-                            type="checkbox"
-                            class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
-                        >
-                        
-                        <!-- Task Content -->
-                        <div class="flex-1 ">
-                            <p class="text-white">{{$task -> title}}</p>
-                            <div class="flex items-center space-x-2 mt-1">
-                                <span class="px-2 py-1 text-xs rounded-full bg-gray-700 text-gray-300">
-                                    {{$task -> priority}}
-                                </span>
-                                <span class="text-xs text-gray-400">
-                                    {{$task -> created_at}}
-                                </span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Delete Button -->
-                    <button 
-                        class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-900/20 transition-all">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                        </svg>
-                    </button>
+@foreach($tasks as $task)
+<div class="task-item glass-effect rounded-xl p-4 priority-{{$task->priority}} fade-in m-3" data-task-id="{{$task->id}}">
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3 flex-1">
+            <!-- Checkbox -->
+            <input 
+                type="checkbox"
+                class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
+                {{$task->completed ? 'checked' : ''}}
+            >
+            
+            <!-- Task Content -->
+            <div class="flex-1 {{$task->completed ? 'completed' : ''}}">
+                <p class="text-white">{{$task->title}}</p>
+                <div class="flex items-center space-x-2 mt-1">
+                    <span class="px-2 py-1 text-xs rounded-full bg-gray-700 text-gray-300">
+                        {{$task->priority}}
+                    </span>
+                    <span class="text-xs text-gray-400">
+                        {{$task->created_at->diffForHumans()}}
+                    </span>
                 </div>
             </div>
-            @endforeach
+        </div>
+
+        <!-- Delete Button -->
+        <button 
+            class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-900/20 transition-all">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
+            </svg>
+        </button>
+    </div>
+</div>
+@endforeach
         </div> 
     </div>
+    <script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Get references to DOM elements
+    const progressBar = document.getElementById('progress-bar');
+    const progressText = document.getElementById('progress-text');
+    const totalTasksEl = document.getElementById('total-tasks');
+    const completedTasksEl = document.getElementById('completed-tasks');
+    const pendingTasksEl = document.getElementById('pending-tasks');
+    const taskItems = document.querySelectorAll('.task-item');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const emptyState = document.getElementById('empty-state');
+    
+    // Initialize progress bar
+    updateProgress();
+    
+    // Initialize checkboxes
+    taskItems.forEach(taskItem => {
+        const checkbox = taskItem.querySelector('input[type="checkbox"]');
+        if (checkbox) {
+            // Set initial state based on item class
+            if (taskItem.querySelector('.flex-1').classList.contains('completed')) {
+                checkbox.checked = true;
+                taskItem.classList.add('completed');
+            }
+            
+            // Add change event listener
+            checkbox.addEventListener('change', function() {
+                // Toggle completed class
+                if (this.checked) {
+                    taskItem.classList.add('completed');
+                    taskItem.querySelector('.flex-1').classList.add('completed');
+                } else {
+                    taskItem.classList.remove('completed');
+                    taskItem.querySelector('.flex-1').classList.remove('completed');
+                }
+                
+                // Update progress
+                updateProgress();
+                
+                // Get task ID
+                const taskId = taskItem.dataset.taskId;
+                if (taskId) {
+                    updateTaskStatus(taskId, this.checked);
+                }
+            });
+        }
+    });
+    
+    // Filter buttons
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            // Update active state
+            filterBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            
+            // Apply filter
+            const filter = this.dataset.filter;
+            taskItems.forEach(taskItem => {
+                if (filter === 'all') {
+                    taskItem.style.display = 'block';
+                } else if (filter === 'completed') {
+                    taskItem.style.display = taskItem.classList.contains('completed') ? 'block' : 'none';
+                } else if (filter === 'pending') {
+                    taskItem.style.display = !taskItem.classList.contains('completed') ? 'block' : 'none';
+                }
+            });
+        });
+    });
+    
+    // Update progress function
+    function updateProgress() {
+        const totalTasks = taskItems.length;
+        const completedTasks = document.querySelectorAll('.task-item.completed').length;
+        const pendingTasks = totalTasks - completedTasks;
+        
+        // Update counters
+        totalTasksEl.textContent = totalTasks;
+        completedTasksEl.textContent = completedTasks;
+        pendingTasksEl.textContent = pendingTasks;
+        
+        // Update progress text
+        progressText.textContent = completedTasks + ' of ' + totalTasks + ' completed';
+        
+        // Update progress bar
+        const progressPercentage = totalTasks === 0 ? 0 : (completedTasks / totalTasks) * 100;
+        progressBar.style.width = progressPercentage + '%';
+        
+        // Show/hide empty state
+        if (totalTasks === 0) {
+            emptyState.classList.remove('hidden');
+        } else {
+            emptyState.classList.add('hidden');
+        }
+    }
+    
+    // Update task status on server
+    function updateTaskStatus(taskId, isCompleted) {
+        const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
+        
+        fetch('/tasks/' + taskId + '/status', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': token
+            },
+            body: JSON.stringify({
+                completed: isCompleted
+            })
+        })
+        .then(function(response) {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .catch(function(error) {
+            console.error('Error updating task status:', error);
+        });
+    }
+});
+</script>
     
 
-    <!-- <script>
-        class TodoApp {
-            constructor() {
-                this.tasks = [];
-                this.currentFilter = 'all';
-                this.initEventListeners();
-                this.updateStats();
-                this.showEmptyState();
-            }
-            
-            initEventListeners() {
-                document.getElementById('add-btn').addEventListener('click', () => this.addTask());
-                document.getElementById('task-input').addEventListener('keypress', (e) => {
-                    if (e.key === 'Enter') this.addTask();
-                });
-                
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.addEventListener('click', (e) => this.setFilter(e.target.dataset.filter));
-                });
-            }
-            
-            addTask() {
-                const input = document.getElementById('task-input');
-                const priority = document.getElementById('priority-select').value;
-                const text = input.value.trim();
-                
-                if (!text) return;
-                
-                const task = {
-                    id: Date.now(),
-                    text,
-                    priority,
-                    completed: false,
-                    createdAt: new Date()
-                };
-                
-                this.tasks.unshift(task);
-                input.value = '';
-                this.renderTasks();
-                this.updateStats();
-            }
-            
-            toggleTask(id) {
-                const task = this.tasks.find(t => t.id === id);
-                if (task) {
-                    task.completed = !task.completed;
-                    this.renderTasks();
-                    this.updateStats();
-                }
-            }
-            
-            deleteTask(id) {
-                const taskElement = document.querySelector(`[data-id="${id}"]`);
-                taskElement.classList.add('slide-out');
-                
-                setTimeout(() => {
-                    this.tasks = this.tasks.filter(t => t.id !== id);
-                    this.renderTasks();
-                    this.updateStats();
-                }, 300);
-            }
-            
-            setFilter(filter) {
-                this.currentFilter = filter;
-                document.querySelectorAll('.filter-btn').forEach(btn => {
-                    btn.classList.remove('active', 'bg-purple-600', 'text-white');
-                    btn.classList.add('text-gray-400');
-                });
-                
-                const activeBtn = document.querySelector(`[data-filter="${filter}"]`);
-                activeBtn.classList.add('active', 'bg-purple-600', 'text-white');
-                activeBtn.classList.remove('text-gray-400');
-                
-                this.renderTasks();
-            }
-            
-            getFilteredTasks() {
-                switch (this.currentFilter) {
-                    case 'completed':
-                        return this.tasks.filter(t => t.completed);
-                    case 'pending':
-                        return this.tasks.filter(t => !t.completed);
-                    default:
-                        return this.tasks;
-                }
-            }
-            
-            renderTasks() {
-                const container = document.getElementById('tasks-container');
-                const emptyState = document.getElementById('empty-state');
-                const filteredTasks = this.getFilteredTasks();
-                
-                if (filteredTasks.length === 0) {
-                    container.innerHTML = '';
-                    emptyState.classList.remove('hidden');
-                    return;
-                }
-                
-                emptyState.classList.add('hidden');
-                
-                container.innerHTML = filteredTasks.map(task => `
-                    <div class="task-item glass-effect rounded-xl p-4 ${task.completed ? 'completed' : ''} priority-${task.priority} fade-in" data-id="${task.id}">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3 flex-1">
-                                <input 
-                                    type="checkbox" 
-                                    ${task.completed ? 'checked' : ''} 
-                                    onchange="app.toggleTask(${task.id})"
-                                    class="w-5 h-5 text-purple-600 bg-gray-700 border-gray-600 rounded focus:ring-purple-500 focus:ring-2"
-                                >
-                                <div class="flex-1">
-                                    <p class="text-white ${task.completed ? 'line-through opacity-60' : ''}">${task.text}</p>
-                                    <div class="flex items-center space-x-2 mt-1">
-                                        <span class="px-2 py-1 text-xs rounded-full bg-gray-700 text-gray-300">
-                                            ${task.priority.charAt(0).toUpperCase() + task.priority.slice(1)}
-                                        </span>
-                                        <span class="text-xs text-gray-400">
-                                            ${this.formatDate(task.createdAt)}
-                                        </span>
-                                    </div>
-                                </div>
-                            </div>
-                            <button 
-                                onclick="app.deleteTask(${task.id})"
-                                class="text-red-400 hover:text-red-300 p-2 rounded-lg hover:bg-red-900/20 transition-all"
-                            >
-                                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path>
-                                </svg>
-                            </button>
-                        </div>
-                    </div>
-                `).join('');
-            }
-            
-            updateStats() {
-                const total = this.tasks.length;
-                const completed = this.tasks.filter(t => t.completed).length;
-                const pending = total - completed;
-                const progress = total > 0 ? (completed / total) * 100 : 0;
-                
-                document.getElementById('total-tasks').textContent = total;
-                document.getElementById('completed-tasks').textContent = completed;
-                document.getElementById('pending-tasks').textContent = pending;
-                document.getElementById('progress-text').textContent = `${completed} of ${total} completed`;
-                document.getElementById('progress-bar').style.width = `${progress}%`;
-            }
-            
-            formatDate(date) {
-                const now = new Date();
-                const diff = now - date;
-                const minutes = Math.floor(diff / 60000);
-                const hours = Math.floor(minutes / 60);
-                const days = Math.floor(hours / 24);
-                
-                if (days > 0) return `${days}d ago`;
-                if (hours > 0) return `${hours}h ago`;
-                if (minutes > 0) return `${minutes}m ago`;
-                return 'Just now';
-            }
-            
-            showEmptyState() {
-                if (this.tasks.length === 0) {
-                    document.getElementById('empty-state').classList.remove('hidden');
-                }
-            }
-        }
-        
-        // Initialize the app
-        const app = new TodoApp();
-        
-        // Initialize filter buttons
-        document.querySelector('.filter-btn[data-filter="all"]').classList.add('bg-purple-600', 'text-white');
-        document.querySelector('.filter-btn[data-filter="all"]').classList.remove('text-gray-400');
-    </script> -->
+   
 </body>
 </html>

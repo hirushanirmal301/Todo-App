@@ -13,7 +13,19 @@ class TaskController extends Controller
     public function index()
     {
         $tasks = Task::all();
-        return view('index',['tasks' => $tasks]);
+
+        $completed = Task::where('completed', true)->count();
+
+        $pending = Task::where('completed', false)->count(); 
+
+        $total = Task::count();
+
+        return view('index',[
+            'tasks' => $tasks,
+            'completed' => $completed,
+            'pending' => $pending,
+            'total' => $total
+        ]);
     }
 
     /**
@@ -76,4 +88,19 @@ class TaskController extends Controller
     {
         //
     }
+
+public function updateStatus(Task $task, Request $request)
+{
+    $task->completed = $request->completed;
+    
+    if ($request->completed) {
+        $task->completed_at = now();
+    } else {
+        $task->completed_at = null;
+    }
+    
+    $task->save();
+    
+    return response()->json(['success' => true]);
+}
 }

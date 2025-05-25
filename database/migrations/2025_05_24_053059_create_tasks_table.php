@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('title');
             $table->string('priority')->nullable();
-            $table->boolean('completed')->default('false');
+            $table->boolean('completed')->default(false);
             $table->timestamp('completed_at')->nullable();
             $table->timestamps();
         });
