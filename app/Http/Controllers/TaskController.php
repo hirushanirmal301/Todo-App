@@ -84,23 +84,28 @@ class TaskController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy(Task $task)
     {
-        //
+        try {
+            $task->delete();
+            return response()->json(['success' => true, 'message' => 'Task deleted successfully']);
+        } catch (\Exception $e) {
+            return response()->json(['success' => false, 'message' => 'Failed to delete task'], 500);
+        }
     }
 
-public function updateStatus(Task $task, Request $request)
-{
-    $task->completed = $request->completed;
-    
-    if ($request->completed) {
-        $task->completed_at = now();
-    } else {
-        $task->completed_at = null;
+    public function updateStatus(Task $task, Request $request)
+    {
+        $task->completed = $request->completed;
+        
+        if ($request->completed) {
+            $task->completed_at = now();
+        } else {
+            $task->completed_at = null;
+        }
+        
+        $task->save();
+        
+        return response()->json(['success' => true]);
     }
-    
-    $task->save();
-    
-    return response()->json(['success' => true]);
-}
 }
