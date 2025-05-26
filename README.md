@@ -2,8 +2,8 @@
 
 A modern, feature-rich Todo application backend API built with Laravel. Provides comprehensive task management with priority levels, status tracking, and real-time statistics. Perfect for learning Laravel fundamentals and building production-ready REST APIs.
 
-![Laravel](https://img.shields.io/badge/Laravel-10.x-red?style=flat-square&logo=laravel)
-![PHP](https://img.shields.io/badge/PHP-8.1+-blue?style=flat-square&logo=php)
+![Laravel](https://img.shields.io/badge/Laravel-12.x-red?style=flat-square&logo=laravel)
+![PHP](https://img.shields.io/badge/PHP-8.3+-blue?style=flat-square&logo=php)
 ![MySQL](https://img.shields.io/badge/MySQL-8.0+-orange?style=flat-square&logo=mysql)
 ![License](https://img.shields.io/badge/License-MIT-green?style=flat-square)
 
@@ -307,8 +307,8 @@ This project is open-sourced software licensed under the [MIT license](LICENSE).
 ## 👨‍💻 Author
 
 **Your Name**
-- GitHub: [@hirushanirmal301]([https://github.com/yourusername](https://github.com/hirushanirmal301))
-- LinkedIn: [Your LinkedIn](https://linkedin.com/in/yourprofile)
+- GitHub: [@hirushanirmal301]([https://github.com/hirushanirmal301](https://github.com/hirushanirmal301))
+- LinkedIn: [Hirusha Nirmal](https://www.linkedin.com/in/hirusha-nirmal-a10480278/)
 - Email: hirushanirmal737@gmail.com
 
 ## 🙏 Acknowledgments
@@ -322,5 +322,3 @@ This project is open-sourced software licensed under the [MIT license](LICENSE).
 ⭐ **Star this repository if you found it helpful!**
 
 **Built with ❤️ using Laravel**
-#   T o d o - A p p  
- 
