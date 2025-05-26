@@ -31,10 +31,10 @@ A modern, feature-rich Todo application backend API built with Laravel. Provides
 ## 🛠️ Installation
 
 ### Prerequisites
-- PHP 8.1 or higher
+- PHP 8.3 or higher
 - Composer
 - MySQL 8.0+ or PostgreSQL
-- Laravel 10.x
+- Laravel 12.x
 
 ### Quick Start
 
